@@ -1,0 +1,4 @@
+input/input12345.txt
+temp.txt
+2
+comp temp.txt output/listsort-m2-12345.txt
