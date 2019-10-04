@@ -220,24 +220,25 @@ void insertion_sort_heavy( struct HLoad HA[], int N )
 void merge_heavy(struct HLoad A[], struct HLoad Tmp[], int left, int mid, int right) {
     int i = left;
     int j = mid + 1;
-    int k = left;
 
-    while (i <= mid && j <= right) {
-        if (A[i].key <= A[j].key)
-            copy_hload(Tmp+(k++), A+(i++));
-        else
-            copy_hload(Tmp+(k++), A+(j++));
+    for (int k = left; k <= right; k++) {
+      if      (i > mid)             copy_hload(Tmp+k, A+(j++));
+      else if (j > right)           copy_hload(Tmp+k, A+(i++));
+      else if (A[j].key < A[i].key) copy_hload(Tmp+k, A+(j++));
+      else                          copy_hload(Tmp+k, A+(i++));
     }
-    while (i <= mid)
-        copy_hload(Tmp+(k++), A+(i++));
-    while (j <= right)
-        copy_hload(Tmp+(k++), A+(j++));
-
-    for (int i = left; i <= right; i++)
-        copy_hload(A+i, Tmp+i);
 }
 
 
+void split_merge_heavy( struct HLoad A[], struct HLoad Tmp[],
+    int left, int right )
+{
+  if ( right <= left ) return;
+  int mid = left + (right - left) / 2;
+  split_merge_heavy(Tmp, A, left, mid);
+  split_merge_heavy(Tmp, A, mid+1, right);
+  merge_heavy(A, Tmp, left, mid, right);     // change the role of A and Tmp.
+}
 
 // A: arrays to be sorted, and to store output (fully sorted)
 // Tmp: temporary space, size is at least right-left+1
@@ -245,12 +246,9 @@ void merge_heavy(struct HLoad A[], struct HLoad Tmp[], int left, int mid, int ri
 void merge_sort_heavy( struct HLoad A[], struct HLoad Tmp[],
     int left, int right )
 {
-    if (left < right) {
-        int mid = (left + right) / 2;
-        merge_sort_heavy(A, Tmp, left, mid);
-        merge_sort_heavy(A, Tmp, mid+1, right);
-        merge_heavy(A, Tmp, left, mid, right);
-    }
+  for (int i = left; i <= right; i++)
+    copy_hload(Tmp+i, A+i);
+  split_merge_heavy(Tmp, A, left, right);
 }
 
 

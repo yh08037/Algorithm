@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /////////////////////////////////////////////////////////////
 // common functions for handling arrays
@@ -114,37 +115,37 @@ void insertion_sort( long A[], int N )
 /////////////////////////////////////////////////////////////
 /* GJ: may add any additional functions */
 
-void merge(long A[], long Tmp[], int left, int mid, int right) {
-    int i = left;
-    int j = mid + 1;
-    int k = left;
+// merge A to Tmp
+void merge(long A[], long Tmp[], int left, int mid, int right)
+{
+  int i = left;
+  int j = mid + 1;
 
-    while (i <= mid && j <= right) {
-        if (A[i] <= A[j])
-            Tmp[k++] = A[i++];
-        else
-            Tmp[k++] = A[j++];
-    }
-    while (i <= mid)
-        Tmp[k++] = A[i++];
-    while (j <= right)
-        Tmp[k++] = A[j++];
+  for (int k = left; k <= right; k++) {
+    if      (i > mid)     Tmp[k] = A[j++];
+    else if (j > right)   Tmp[k] = A[i++];
+    else if (A[j] < A[i]) Tmp[k] = A[j++];
+    else                  Tmp[k] = A[i++];
+  }
+}
 
-    for (int i = left; i <= right; i++)
-        A[i] = Tmp[i];
+void split_merge(long A[], long Tmp[], int left, int right)
+{
+  if ( right <= left ) return;
+  int mid = left + (right - left) / 2;
+  split_merge(Tmp, A, left, mid);
+  split_merge(Tmp, A, mid+1, right);
+  merge(A, Tmp, left, mid, right);    // change the role of A and Tmp.
 }
 
 // A: arrays to be sorted, and to store output (fully sorted)
 // Tmp: temporary space, size is at least right-left+1
 void merge_sort( long A[], long Tmp[], int left, int right )
 {
-    if (left < right) {
-        int mid = (left + right) / 2;
-        merge_sort(A, Tmp, left, mid);
-        merge_sort(A, Tmp, mid+1, right);
-        merge(A, Tmp, left, mid, right);
-    }
+  memcpy(Tmp, A, sizeof(long)*(right-left+1));
+  split_merge(Tmp, A, left, right);
 }
+
 
 
 /////////////////////////////////////////////////////////////
@@ -197,7 +198,7 @@ int main()
       	free(Tmp);
       	break;
       default:
-       break;
+        break;
     }
 
     // print out results, if not too many
