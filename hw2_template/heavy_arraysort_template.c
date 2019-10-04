@@ -276,8 +276,6 @@ int main()
 #ifdef MEASURE_TIME
   clock_t start, end;
   double cpu_time_used;
-
-  start = clock();
 #endif
 
   /* file name given by keyboard */
@@ -289,6 +287,8 @@ int main()
 
   printf("Method (1: insertion, 2: merge)? ");
   scanf("%d",&method);
+
+  start = clock();
 
   /* read text file of integers:
    * number_of_intergers integer1 integer2 ... */
