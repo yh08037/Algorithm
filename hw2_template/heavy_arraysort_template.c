@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>	// to measure time
 
 #define MEASURE_TIME    // to measure execution time
@@ -106,9 +107,8 @@ void fill_hload(struct HLoad *pH, long key)
 
 void copy_hload(struct HLoad *dst, struct HLoad *src)
 {
-  int i;
   dst->key = src->key;
-  for (i=0; i<LOAD_SIZE; i++) dst->ManyItems[i] = src->ManyItems[i];
+  memcpy(dst->ManyItems, src->ManyItems, sizeof(long)*LOAD_SIZE);
 }
 
 long pick_random_item( struct HLoad *pH )

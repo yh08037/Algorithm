@@ -189,15 +189,15 @@ int main()
 
     switch ( method ) {
       case 1:	// insertion sort
-	insertion_sort(A, numElements);
-	break;
+      	insertion_sort(A, numElements);
+      	break;
       case 2:	// merge sort
-	Tmp = (long*)malloc(sizeof(long)*numElements);
-	merge_sort(A, Tmp, 0, numElements-1);
-	free(Tmp);
-	break;
+      	Tmp = (long*)malloc(sizeof(long)*numElements);
+      	merge_sort(A, Tmp, 0, numElements-1);
+      	free(Tmp);
+      	break;
       default:
-	break;
+       break;
     }
 
     // print out results, if not too many
