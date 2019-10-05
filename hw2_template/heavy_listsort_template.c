@@ -343,15 +343,11 @@ struct LHNode *merge(struct LHNode *head1, struct LHNode *head2) {
       new_head = cur;
   }
 
-  while (head1 != NULL) {
-    temp = head1->next;
-    cur = insert_next(cur, head1);
-    head1 = temp;
+  if (head1 != NULL) {
+    cur->next = head1;
   }
-  while (head2 != NULL) {
-    temp = head2->next;
-    cur = insert_next(cur, head2);
-    head2 = temp;
+  if (head2 != NULL) {
+    cur->next = head2;
   }
 
   return new_head;
@@ -422,21 +418,21 @@ int main()
 
     switch ( method ) {
       case 1:	// insertion sort
-	head = list_insertion_sort(head);
-	break;
+        head = list_insertion_sort(head);
+        break;
       case 2:	// merge sort
-	// change linked list to individual list items,
-	// and save their pointers to an array of LHNode* types
-	H = (struct LHNode**) malloc(sizeof(struct LHNode*)*numElements);
-	for (i=0; i<numElements; i++, head=head->next) H[i] = head;
+      	// change linked list to individual list items,
+      	// and save their pointers to an array of LHNode* types
+      	H = (struct LHNode**) malloc(sizeof(struct LHNode*)*numElements);
+      	for (i=0; i<numElements; i++, head=head->next) H[i] = head;
 
-	// have to isolate list items later
-	for (i=0; i<numElements; i++) H[i]->next=NULL;
+      	// have to isolate list items later
+      	for (i=0; i<numElements; i++) H[i]->next=NULL;
 
-	head = list_array_merge_sort(H,numElements);
-	break;
+      	head = list_array_merge_sort(H,numElements);
+      	break;
       default:
-	break;
+       break;
     }
 
     // print out results, if not too many

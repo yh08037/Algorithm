@@ -300,15 +300,11 @@ struct LNode *merge(struct LNode *head1, struct LNode *head2) {
       new_head = cur;
   }
 
-  while (head1 != NULL) {
-    temp = head1->next;
-    cur = insert_next(cur, head1);
-    head1 = temp;
+  if (head1 != NULL) {
+    cur->next = head1;
   }
-  while (head2 != NULL) {
-    temp = head2->next;
-    cur = insert_next(cur, head2);
-    head2 = temp;
+  if (head2 != NULL) {
+    cur->next = head2;
   }
 
   return new_head;
