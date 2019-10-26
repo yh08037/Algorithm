@@ -252,15 +252,19 @@ int print_BST_1(FILE *fp, struct BTNode *bst, int level)
   if ( bst != NULL ) {
     fprintf(fp, "%s",getkey(bst));
 
+    if ( bst->right ) fprintf(fp, "/");
+    else              fprintf(fp, "\n");
+
     right = print_BST_1(fp, bst->right, level+1);
 
-    for ( i = 0; i < level+1; i++ )
-      fprintf(fp, "   ");
+    if ( bst->left != NULL ) {
+      for ( i = 0; i < 4*level+3; i++ )
+        fprintf(fp, " ");
+      fprintf(fp, "+");
+    }
 
     left = print_BST_1(fp, bst->left, level+1);
   }
-
-  if ( level <= 1 ) fprintf(fp, "\n");
 
   return right > left ? right : left;
 }
