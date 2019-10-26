@@ -14,8 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>	// to measure time
+#include <string.h>	// 191002 memcpy
 
 #define MEASURE_TIME    // to measure execution time
 
@@ -23,7 +22,7 @@
 // to compute execution time in seconds
 /////////////////////////////////////////////
 #ifdef MEASURE_TIME
-#include<time.h>
+#include <time.h>	// to measure time
 /* time measurement example */
 /*
    clock_t start, end;
@@ -105,10 +104,20 @@ void fill_hload(struct HLoad *pH, long key)
   for (i=0; i<LOAD_SIZE; i++) pH->ManyItems[i] = key;
 }
 
+// update 2019 10 02
+// for loop is replaced with memcpy for speed-up
+// change: input is input12345.txt
+// using for loop
+//   TIME 421.36131 seconds
+// using memcpy loop
+//   TIME 235.21121 seconds
+// The speedup ratio may different on your machine
 void copy_hload(struct HLoad *dst, struct HLoad *src)
 {
+  //int i;
+  //for (i=0; i<LOAD_SIZE; i++) dst->ManyItems[i] = src->ManyItems[i];
   dst->key = src->key;
-  memcpy(dst->ManyItems, src->ManyItems, sizeof(long)*LOAD_SIZE);
+  memcpy(dst->ManyItems,src->ManyItems,sizeof(long)*LOAD_SIZE);
 }
 
 long pick_random_item( struct HLoad *pH )
@@ -208,15 +217,6 @@ void insertion_sort_heavy( struct HLoad HA[], int N )
   }
 }
 
-/////////////////////////////////////////////////////////////
-// merge sort
-// GJ Note: from merge sort in your arraysort.c
-//   change the assignment with copy_hload(),
-//   and value comparison with key value comparison
-/////////////////////////////////////////////////////////////
-/* GJ: may add any additional functions */
-
-
 void merge_heavy(struct HLoad A[], struct HLoad Tmp[], int left, int mid, int right) {
     int i = left;
     int j = mid + 1;
@@ -239,6 +239,14 @@ void split_merge_heavy( struct HLoad A[], struct HLoad Tmp[],
   split_merge_heavy(Tmp, A, mid+1, right);
   merge_heavy(A, Tmp, left, mid, right);     // change the role of A and Tmp.
 }
+
+/////////////////////////////////////////////////////////////
+// merge sort
+// GJ Note: from merge sort in your arraysort.c
+//   change the assignment with copy_hload(),
+//   and value comparison with key value comparison
+/////////////////////////////////////////////////////////////
+/* GJ: may add any additional functions */
 
 // A: arrays to be sorted, and to store output (fully sorted)
 // Tmp: temporary space, size is at least right-left+1
@@ -286,7 +294,9 @@ int main()
   printf("Method (1: insertion, 2: merge)? ");
   scanf("%d",&method);
 
+#ifdef MEASURE_TIME
   start = clock();
+#endif
 
   /* read text file of integers:
    * number_of_intergers integer1 integer2 ... */

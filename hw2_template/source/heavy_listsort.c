@@ -321,7 +321,6 @@ struct LHNode *list_insertion_sort ( struct LHNode *head )
 /////////////////////////////////////////////////////////////
 /* GJ: may add any additional functions */
 
-
 struct LHNode *merge(struct LHNode *head1, struct LHNode *head2) {
   struct LHNode *cur = NULL;
   struct LHNode *new_head = NULL;
@@ -353,7 +352,6 @@ struct LHNode *merge(struct LHNode *head1, struct LHNode *head2) {
   return new_head;
 }
 
-
 struct LHNode *list_array_merge_sort( struct LHNode **head_array, int N )
 {
   if (N == 1) return NULL;
@@ -364,7 +362,6 @@ struct LHNode *list_array_merge_sort( struct LHNode **head_array, int N )
   list_array_merge_sort(head_array, N/2 + N%2);
 
   return head_array[0];
-
 }
 /////////////////////////////////////////////////////////////
 
@@ -401,7 +398,9 @@ int main()
   printf("Method (1: insertion, 2: merge)? ");
   scanf("%d",&method);
 
+#ifdef MEASURE_TIME
   start = clock();
+#endif
 
   /* read text file of integers:
    * number_of_intergers integer1 integer2 ...
@@ -418,21 +417,21 @@ int main()
 
     switch ( method ) {
       case 1:	// insertion sort
-        head = list_insertion_sort(head);
-        break;
+	head = list_insertion_sort(head);
+	break;
       case 2:	// merge sort
-      	// change linked list to individual list items,
-      	// and save their pointers to an array of LHNode* types
-      	H = (struct LHNode**) malloc(sizeof(struct LHNode*)*numElements);
-      	for (i=0; i<numElements; i++, head=head->next) H[i] = head;
+	// change linked list to individual list items,
+	// and save their pointers to an array of LHNode* types
+	H = (struct LHNode**) malloc(sizeof(struct LHNode*)*numElements);
+	for (i=0; i<numElements; i++, head=head->next) H[i] = head;
 
-      	// have to isolate list items later
-      	for (i=0; i<numElements; i++) H[i]->next=NULL;
+	// have to isolate list items later
+	for (i=0; i<numElements; i++) H[i]->next=NULL;
 
-      	head = list_array_merge_sort(H,numElements);
-      	break;
+	head = list_array_merge_sort(H,numElements);
+	break;
       default:
-       break;
+	break;
     }
 
     // print out results, if not too many

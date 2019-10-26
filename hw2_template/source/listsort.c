@@ -310,7 +310,6 @@ struct LNode *merge(struct LNode *head1, struct LNode *head2) {
   return new_head;
 }
 
-
 struct LNode *list_array_merge_sort( struct LNode **head_array, int N )
 {
   if (N == 1) return NULL;
@@ -368,21 +367,21 @@ int main()
 
     switch ( method ) {
       case 1:	// insertion sort
-      	head = list_insertion_sort(head);
-      	break;
+	head = list_insertion_sort(head);
+	break;
       case 2:	// merge sort
-      	// change linked list to individual list items,
-      	// and save their pointers to an array of LNode* types
-      	H = (struct LNode**) malloc(sizeof(struct LNode*)*numElements);
-      	for (i=0; i<numElements; i++, head=head->next) H[i] = head;
+	// change linked list to individual list items,
+	// and save their pointers to an array of LNode* types
+	H = (struct LNode**) malloc(sizeof(struct LNode*)*numElements);
+	for (i=0; i<numElements; i++, head=head->next) H[i] = head;
 
-      	// have to isolate list items later
-      	for (i=0; i<numElements; i++) H[i]->next=NULL;
+	// have to isolate list items later
+	for (i=0; i<numElements; i++) H[i]->next=NULL;
 
-      	head = list_array_merge_sort(H,numElements);
-      	break;
+	head = list_array_merge_sort(H,numElements);
+	break;
       default:
-	      break;
+	break;
     }
 
     // print out results, if not too many
