@@ -280,7 +280,29 @@ int print_BST_2(FILE *fp, struct BTNode *bst, int level)
   //       static variable can be used as well
   //       You may add additional parameter to the function if necessary
 {
-  /* FILL */
+  int i, right, left;
+
+  right = left = level;
+
+  if ( bst != NULL ) {
+    fprintf(fp, "%s",getkey(bst));
+
+    if ( bst->right ) fprintf(fp, "/");
+    else              fprintf(fp, "\n");
+
+    right = print_BST_2(fp, bst->right, level+1);
+
+    if ( bst->left != NULL ) {
+      // TODO : add printing vertical line (|)
+      for ( i = 0; i < 4*level+3; i++ )
+        fprintf(fp, " ");
+      fprintf(fp, "+");
+    }
+
+    left = print_BST_2(fp, bst->left, level+1);
+  }
+
+  return right > left ? right : left;
 }
 
 
