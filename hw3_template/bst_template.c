@@ -30,6 +30,28 @@ struct BTNode {
   struct BTNode *left, *right;	// binary tree: left and right children
 };
 
+// stack definition for print_BST_2()
+char* array[1024];
+int stack_top = -1;
+
+char SPACE[] = "    ";
+char PIPE[]  = "   |";
+char PLUS[]  = "   +";
+
+void push(char* str) {
+  array[++stack_top] = str;
+}
+
+char* pop() {
+  if ( stack_top < 0 )
+    return NULL;
+  return array[stack_top--];
+}
+
+void print_stack(FILE* fp) {
+  for ( int i = 0; i <= stack_top; i++ )
+    fprintf(fp, "%s", array[i]);
+}
 
 /////////////////////////////////////////////////////////////
 // GIVEN: functions for binary tree node
@@ -216,10 +238,11 @@ int print_BST_right_center_left(FILE *fp, struct BTNode *bst, int level)
     for ( i = 0; i < level; i++ )
       fprintf(fp, "    ");
 
-    fprintf(fp, "%s \n",getkey(bst));
+    fprintf(fp, "%s\n",getkey(bst));
 
     left = print_BST_right_center_left(fp, bst->left, level+1);
   }
+
 
   return right > left ? right : left;
 }
@@ -285,26 +308,31 @@ int print_BST_2(FILE *fp, struct BTNode *bst, int level)
   right = left = level;
 
   if ( bst != NULL ) {
-    fprintf(fp, "%s",getkey(bst));
+    fprintf(fp, "%s", getkey(bst));
 
-    if ( bst->right ) fprintf(fp, "/");
-    else              fprintf(fp, "\n");
+    if ( bst->right ) {
+      fprintf(fp, "/");
+      if ( bst->left ) push(PIPE);
+      else             push(SPACE);
+    }
+    else
+      fprintf(fp, "\n");
 
     right = print_BST_2(fp, bst->right, level+1);
 
     if ( bst->left != NULL ) {
-      // TODO : add printing vertical line (|)
-      for ( i = 0; i < 4*level+3; i++ )
-        fprintf(fp, " ");
-      fprintf(fp, "+");
+      push(PLUS);
+      print_stack(fp);
+      pop(); push(SPACE);
     }
 
     left = print_BST_2(fp, bst->left, level+1);
+
+    pop();
   }
 
   return right > left ? right : left;
 }
-
 
 /////////////////////////////////////////////////////////////
 // FILL 3: Conversion of an BST to a complete BST
@@ -333,7 +361,19 @@ struct BTNode *generate_BST_quicksort_basic(struct BTNode *lhbt)
   // gerate a BST using quick sort algorithm
   // the resultant tree should be identical to generate_BST_by_insertion
 {
-  /* FILL */
+  struct BTNode* newNode;
+  struct BTNode* bst = NULL;
+
+  while ( lhbt ) {
+    newNode = generate_btnode(getkey(lhbt));
+
+    if ( !bst ) bst = newNode;
+    else        insert_to_BST_leaf(bst, newNode);
+
+    lhbt = lhbt->left;
+  }
+
+  return bst;
 }
 
 struct BTNode *generate_BST_quicksort_advanced(struct BTNode *lhbt)
