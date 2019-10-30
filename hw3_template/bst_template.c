@@ -24,14 +24,16 @@
 /////////////////////////////////////////////////////////////
 #define KEYLENGTH	3
 #define BULK_SIZE	4096
-//#define BULK_SIZE	65536
+#define STACK_SIZE 8192
+#define ARRAY_SIZE 8192
+
 struct BTNode {
   char bulk[BULK_SIZE];	// null character to be added
   struct BTNode *left, *right;	// binary tree: left and right children
 };
 
 // stack definition for print_BST_2()
-void* array[1024];
+void* stack_array[STACK_SIZE];
 int stack_top = -1;
 
 char SPACE[] = "    ";
@@ -39,7 +41,7 @@ char PIPE[]  = "   |";
 char PLUS[]  = "   +";
 
 void push(char* str) {
-  array[++stack_top] = str;
+  stack_array[++stack_top] = str;
 }
 
 void pop() {
@@ -49,8 +51,11 @@ void pop() {
 
 void print_stack(FILE* fp) {
   for ( int i = 0; i <= stack_top; i++ )
-    fprintf(fp, "%s", (char*)array[i]);
+    fprintf(fp, "%s", (char*)stack_array[i]);
 }
+
+struct BTNode* array[ARRAY_SIZE];
+int array_index = 0;
 
 /////////////////////////////////////////////////////////////
 // GIVEN: functions for binary tree node
@@ -333,29 +338,37 @@ int print_BST_2(FILE *fp, struct BTNode *bst, int level)
 // FILL 3: Conversion of an BST to a complete BST
 /////////////////////////////////////////////////////////////
 
-void tree_to_array(struct BTNode *bst) {
+int tree_to_array(struct BTNode *bst, int idx) {
   if ( bst != NULL ) {
-    tree_to_array(bst->left);
-    array[++stack_top] = bst;
-    tree_to_array(bst->right);
+    idx = tree_to_array(bst->left, idx);
+    array[idx++] = bst;
+    idx = tree_to_array(bst->right, idx);
   }
+  return idx;
 }
 
-void split_array(struct BTNode *bst, int begin, int end) {
-  int mid = (begin + end) / 2 + 1;
+struct BTNode *split_array(struct BTNode *bst, int begin, int end, int num) {
 
-  if ( begin + 1 >= end ) return;
+  int mid = (begin + end) / 2;
 
-  // if ( !bst ) bst = (struct BTNode*)array[mid];
-  // else
-  insert_to_BST_leaf(bst, (struct BTNode*)array[mid]);
+  if ( begin > end ) return bst;
 
-  print_BST_2(stdout, bst, 0);
+  bst = array[mid];
 
-  // printf("%s ", getkey((struct BTNode*)array[mid]));
+  if ( begin == end ) {
+    if ( array_index < num )
+      bst->left = array[array_index++];
 
-  split_array(bst, begin, mid-1);
-  split_array(bst, mid+1, end);
+    if ( array_index < num )
+      bst->right = array[array_index++];
+
+    return bst;
+  }
+
+  bst->left  = split_array(bst->left, begin, mid-1, num);
+  bst->right = split_array(bst->right, mid+1, end, num);
+
+  return bst;
 }
 
 struct BTNode *BST_to_completeBST(struct BTNode *bst, int numNodes)
@@ -371,16 +384,32 @@ struct BTNode *BST_to_completeBST(struct BTNode *bst, int numNodes)
 {
   struct BTNode *newBST = NULL;
 
-  // tree_to_array(bst);
-  //
-  // for ( int i = 0; i < numNodes; i++ )
-  //   ((struct BTNode*)array[i])->right = ((struct BTNode*)array[i])->left = NULL;
-  //
-  // // for ( int i = 0; i < numNodes; i++ )
-  // //   printf("%s ", getkey((struct BTNode*)array[i]));
-  // // printf("\n");
-  //
-  // split_array(newBST, 0, numNodes-1);
+  int num_bottom, tmp = 1, i;
+
+  while ( numNodes >= tmp * 2 ) tmp *= 2;
+  num_bottom = numNodes - tmp + 1;
+
+  tree_to_array(bst, 0);
+
+  for ( int i = 0; i < 2*num_bottom-1; i++ )
+    stack_array[i] = array[i];
+
+  for ( i = 0; i < num_bottom; i++ )
+    array[i] = stack_array[2*i];
+
+  tmp = 1;
+
+  for ( ; i < 2*num_bottom-1; i++ ) {
+    array[i] = (struct BTNode*)stack_array[tmp];
+    tmp += 2;
+  }
+
+  for ( int i = 0; i < numNodes; i++ )
+  array[i]->right = array[i]->left = NULL;
+
+  newBST = array[(num_bottom + numNodes-1)/2];
+
+  split_array(newBST, num_bottom, numNodes-1, num_bottom);
 
   return newBST;
 }
@@ -434,42 +463,7 @@ struct BTNode *generate_BST_quicksort_basic(struct BTNode *lhbt)
 struct BTNode *generate_BST_quicksort_advanced(struct BTNode *lhbt)
   // challenge: try to reduce the height using quick sort algorithm
 {
-  struct BTNode *newNode, *left, *right;
-  struct BTNode *bst = NULL;
-
-  int is_first = 1;
-
-  if ( lhbt == NULL )
-    return bst;
-
-  while ( lhbt ) {
-    newNode = lhbt;
-    lhbt = lhbt->left;
-    newNode->right = newNode->left = NULL;
-
-    if ( !bst )  {
-      bst = newNode;
-      left = right = bst;
-    }
-    else {
-      if ( comparekey(bst, newNode) < 0 ) {
-        if ( is_first ){
-          right = bst->right = newNode;
-          is_first = 0;
-        }
-        else
-          right = insert_left_bcnode(right, newNode);
-      }
-      else
-        left = insert_left_bcnode(left, newNode);
-    }
-  }
-
-  generate_BST_quicksort_basic(bst->right);
-  generate_BST_quicksort_basic(bst->left);
-
-  return bst;
-
+  return lhbt;
 }
 
 /////////////////////////////////////////////////////////////
