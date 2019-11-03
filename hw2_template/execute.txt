@@ -1,3 +1,3 @@
-input/input12345.txt
+input12345.txt
 temp.txt
 2

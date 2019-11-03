@@ -24,7 +24,6 @@
 /////////////////////////////////////////////////////////////
 #define KEYLENGTH	3
 #define BULK_SIZE	4096
-#define STACK_SIZE 8192
 #define ARRAY_SIZE 8192
 
 struct BTNode {
@@ -33,7 +32,7 @@ struct BTNode {
 };
 
 // stack definition for print_BST_2()
-void* stack_array[STACK_SIZE];
+void* void_array[ARRAY_SIZE];
 int stack_top = -1;
 
 char SPACE[] = "    ";
@@ -41,7 +40,7 @@ char PIPE[]  = "   |";
 char PLUS[]  = "   +";
 
 void push(char* str) {
-  stack_array[++stack_top] = str;
+  void_array[++stack_top] = str;
 }
 
 void pop() {
@@ -51,7 +50,7 @@ void pop() {
 
 void print_stack(FILE* fp) {
   for ( int i = 0; i <= stack_top; i++ )
-    fprintf(fp, "%s", (char*)stack_array[i]);
+    fprintf(fp, "%s", (char*)void_array[i]);
 }
 
 struct BTNode* array[ARRAY_SIZE];
@@ -392,15 +391,15 @@ struct BTNode *BST_to_completeBST(struct BTNode *bst, int numNodes)
   tree_to_array(bst, 0);
 
   for ( int i = 0; i < 2*num_bottom-1; i++ )
-    stack_array[i] = array[i];
+    void_array[i] = array[i];
 
   for ( i = 0; i < num_bottom; i++ )
-    array[i] = stack_array[2*i];
+    array[i] = void_array[2*i];
 
   tmp = 1;
 
   for ( ; i < 2*num_bottom-1; i++ ) {
-    array[i] = (struct BTNode*)stack_array[tmp];
+    array[i] = (struct BTNode*)void_array[tmp];
     tmp += 2;
   }
 
