@@ -390,7 +390,7 @@ struct BTNode *BST_to_completeBST(struct BTNode *bst, int numNodes)
 
   tree_to_array(bst, 0);
 
-  for ( int i = 0; i < 2*num_bottom-1; i++ )
+  for ( i = 0; i < 2*num_bottom-1; i++ )
     void_array[i] = array[i];
 
   for ( i = 0; i < num_bottom; i++ )
@@ -404,7 +404,7 @@ struct BTNode *BST_to_completeBST(struct BTNode *bst, int numNodes)
   }
 
   for ( int i = 0; i < numNodes; i++ )
-  array[i]->right = array[i]->left = NULL;
+    array[i]->right = array[i]->left = NULL;
 
   newBST = array[(num_bottom + numNodes-1)/2];
 
