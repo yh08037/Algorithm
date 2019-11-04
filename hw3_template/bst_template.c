@@ -337,11 +337,11 @@ int print_BST_2(FILE *fp, struct BTNode *bst, int level)
 // FILL 3: Conversion of an BST to a complete BST
 /////////////////////////////////////////////////////////////
 
-int tree_to_array(struct BTNode *bst, int idx) {
+int BST_to_sorted_array(struct BTNode *bst, int idx) {
   if ( bst != NULL ) {
-    idx = tree_to_array(bst->left, idx);
+    idx = BST_to_sorted_array(bst->left, idx);
     array[idx++] = bst;
-    idx = tree_to_array(bst->right, idx);
+    idx = BST_to_sorted_array(bst->right, idx);
   }
   return idx;
 }
@@ -385,29 +385,33 @@ struct BTNode *BST_to_completeBST(struct BTNode *bst, int numNodes)
 
   int num_bottom, tmp = 1, i;
 
+  // get number of last level nodes
   while ( numNodes >= tmp * 2 ) tmp *= 2;
   num_bottom = numNodes - tmp + 1;
 
-  tree_to_array(bst, 0);
+  // convert BST to sorted array recursively
+  BST_to_sorted_array(bst, 0);
 
+  // rearrange array to seperate last level nodes
+  // array[0 : num_bottom]        : last level nodes (ascending order)
+  // array[num_bottom : numNodes] : other nodes (ascending order)
   for ( i = 0; i < 2*num_bottom-1; i++ )
     void_array[i] = array[i];
 
   for ( i = 0; i < num_bottom; i++ )
-    array[i] = void_array[2*i];
+    array[i] = (struct BTNode*)void_array[2*i];
 
-  tmp = 1;
-
-  for ( ; i < 2*num_bottom-1; i++ ) {
+  for ( tmp = 1; i < 2*num_bottom-1; i++, tmp += 2 )
     array[i] = (struct BTNode*)void_array[tmp];
-    tmp += 2;
-  }
 
-  for ( int i = 0; i < numNodes; i++ )
+  // break links of all nodes in array
+  for ( i = 0; i < numNodes; i++ )
     array[i]->right = array[i]->left = NULL;
 
+  // make root of new complete BST
   newBST = array[(num_bottom + numNodes-1)/2];
 
+  // generate complete BST by spliting array recursively
   split_array(newBST, num_bottom, numNodes-1, num_bottom);
 
   return newBST;
