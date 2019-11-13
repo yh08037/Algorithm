@@ -24,7 +24,7 @@
 /////////////////////////////////////////////////////////////
 #define KEYLENGTH	3
 #define BULK_SIZE	4096
-#define ARRAY_SIZE 8192
+#define ARRAY_SIZE 11000
 
 struct BTNode {
   char bulk[BULK_SIZE];	// null character to be added
@@ -242,7 +242,6 @@ int print_BST_right_center_left(FILE *fp, struct BTNode *bst, int level)
     left = print_BST_right_center_left(fp, bst->left, level+1);
   }
 
-
   return right > left ? right : left;
 }
 
@@ -433,16 +432,13 @@ struct BTNode *generate_BST_quicksort_basic(struct BTNode *lhbt)
   if ( lhbt == NULL )
     return bst;
 
-  // partition
   while ( lhbt ) {
     newNode = lhbt;
     lhbt = lhbt->left;
     newNode->right = newNode->left = NULL;
 
-    if ( !bst )  {
-      bst = newNode;
-      left = right = bst;
-    }
+    if ( !bst )
+      left = right = bst = newNode;
     else {
       if ( comparekey(bst, newNode) < 0 ) {
         if ( is_first ){
@@ -466,7 +462,7 @@ struct BTNode *generate_BST_quicksort_basic(struct BTNode *lhbt)
 struct BTNode *generate_BST_quicksort_advanced(struct BTNode *lhbt)
   // challenge: try to reduce the height using quick sort algorithm
 {
-  return lhbt;
+  /*FILL*/
 }
 
 /////////////////////////////////////////////////////////////
