@@ -151,6 +151,44 @@ void read_txt_2(int* weight, int* value, int* max_weight_1, int* max_weight_2, i
 
 
 double knapsack(int* weight, int* value, int* x, int max_weight, int number) {
+
+  int**  benefit;
+  int    w, i, temp_w;
+  double max_benefit;
+
+
+  /* generate benefit table */
+
+  benefit = create_table(max_weight+1, number+1);
+
+
+  /* knapsack : filling table */
+
+  for ( w = 0; w <= max_weight; w++ )
+    benefit[w][0] = 0;
+
+  for ( i = 1; i <= number; i++) {
+    benefit[0][i] = 0;
+    for ( w = 0; w <= max_weight; w++ ) {
+      if ( weight[i] <= w ) {
+        if ( value[i] + benefit[w-weight[i]][i-1] > benefit[w][i-1] )
+          benefit[w][i] = value[i] + benefit[w-weight[i]][i-1];
+        else
+          benefit[w][i] = benefit[w][i-1];
+      }
+      else
+        benefit[w][i] = benefit[w][i-1];
+    }
+  }
+
+
+  /* backtracking */
+
+  temp_w = max_weight;
+
+  for ( i = number; i > 0; i-- ) {
+    if ( benefit[temp_w][i-1] != benefit[temp_w][i] ) {
+      // printf("(%d) ", temp_w);
       temp_w -= weight[i];
       x[i] = 1;
     }
