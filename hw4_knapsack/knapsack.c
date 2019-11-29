@@ -1,27 +1,34 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+
 
 #define MAX_LEN 64
 
 
 void read_txt_1(int* weight, int* value, int* max_weight, int* number);
-void read_txt_2(int* weight, int* value, int* max_weight, int* number);
+void read_txt_2(int* weight, int* value, int* max_weight_1, int* max_weight_2, int* number);
 
 double knapsack(int* weight, int* value, int* x, int max_weight, int number);
 double knapsack_one_split(int* weight, int* value, int* x, int max_weight, int number);
 double knapsack_one_duplicate(int* weight, int* value, int* x, int max_weight, int number);
-double knapsack_2(int* weight, int* value, int* x, int max_weight, int number);
+double knapsack_multiple(int* weight, int* value, int* x, int max_weight_1, int max_weight_2, int number);
 
-void  print_result(int* x, double result, int number);
-void validate_result(int* value, int* x, double result, int number);
-int** create_table(int height, int width);
-void  destroy_table(int** arr, int height);
+void   print_result(int* x, double result, int number);
+void   validate_result(int* weight, int* value, int* x, int max_weight, int number, double result);
+
+int**  create_table(int height, int width);
+void   destroy_table(int** arr, int height);
+int    maximum(int a, int b, int c);
 
 
 int main(void) {
 
   int    number, max_weight;
+  int    max_weight_1, max_weight_2;  // for knapsack_multiple
   int    weight[MAX_LEN] = {0};
   int    value[MAX_LEN] = {0};
   int    x_1[MAX_LEN] = {0};  // 0 : not in       1: in
@@ -33,42 +40,41 @@ int main(void) {
 
   /* read input file for problem 1, 2, 3 */
 
-  read_txt_1(weight, value, &max_weight, &number);
-
-
-  /* problem 1. standard 0-1 knapsack problem */
-
-  result = knapsack(weight, value, x_1, max_weight, number);
-
-  print_result(x_1, result, number);
-  validate_result(value, x_1, result, number);
-
-
-  /* problem 2. 0-1 knapsack with one item split */
-
-  result = knapsack_one_split(weight, value, x_2, max_weight, number);
-
-  print_result(x_2, result, number);
-  validate_result(value, x_2, result, number);
-
-
-  /* problem 3. knapsack with one duplicate item */
-
-  result = knapsack_one_duplicate(weight, value, x_3, max_weight, number);
-
-  print_result(x_3, result, number);
-  validate_result(value, x_3, result, number);
+  // read_txt_1(weight, value, &max_weight, &number);
+  //
+  //
+  // /* problem 1. standard 0-1 knapsack problem */
+  //
+  // result = knapsack(weight, value, x_1, max_weight, number);
+  //
+  // print_result(x_1, result, number);
+  // validate_result(weight, value, x_1, max_weight, number, result);
+  //
+  //
+  // /* problem 2. 0-1 knapsack with one item split */
+  //
+  // result = knapsack_one_split(weight, value, x_2, max_weight, number);
+  //
+  // print_result(x_2, result, number);
+  // validate_result(weight, value, x_2, max_weight, number, result);
+  //
+  //
+  // /* problem 3. knapsack with one duplicate item */
+  //
+  // result = knapsack_one_duplicate(weight, value, x_3, max_weight, number);
+  //
+  // print_result(x_3, result, number);
+  // validate_result(weight, value, x_3, max_weight, number, result);
 
 
   /* problem 4. knapsack with two identical knapsack */
 
-  // read_txt_1(weight, value, &max_weight, &number);
-  //
-  // result = knapsack_one_duplicate(weight, value, x_4, max_weight, number);
+  read_txt_2(weight, value, &max_weight_1, &max_weight_2, &number);
+
+  result = knapsack_multiple(weight, value, x_4, max_weight_1, max_weight_2, number);
   //
   // print_result(x_4, result, number);
-  // validate_result(value, x_1, result, number);
-  //
+  // validate_result(value, x_4, result, number);
 
 
   return 0;
@@ -77,7 +83,7 @@ int main(void) {
 
 void read_txt_1(int* weight, int* value, int* max_weight, int* number) {
 
-  char  input_file_name[] = "input6.txt";
+  char  input_file_name[] = "one_knapsack/input7.txt";
   FILE* input_file;
   int   temp_w, temp_v;
 
@@ -98,6 +104,37 @@ void read_txt_1(int* weight, int* value, int* max_weight, int* number) {
     (*number)++;
     weight[*number] = temp_w;
     value[*number] = temp_v;
+  }
+
+  fclose(input_file);
+}
+
+
+void read_txt_2(int* weight, int* value, int* max_weight_1, int* max_weight_2, int* number) {
+
+  //char  input_file_name[] = "two_knapsack/input.txt";
+  char  input_file_name[] = "input.txt";
+  FILE* input_file;
+  int   temp_1, temp_2;
+
+
+  /* read input file */
+
+  *number = 0;
+  input_file = fopen(input_file_name, "r");
+
+  while ( 1 ) {
+    fscanf(input_file, "%d %d", &temp_1, &temp_2);
+
+    if ( fgetc(input_file) != '\n' ) {
+      *max_weight_1 = temp_1;
+      *max_weight_2 = temp_2;
+      break;
+    }
+
+    (*number)++;
+    weight[*number] = temp_1;
+    value[*number] = temp_2;
   }
 
   fclose(input_file);
@@ -216,15 +253,7 @@ double knapsack_one_split(int* weight, int* value, int* x, int max_weight, int n
     if ( max_benefit_index != 0 ) {
       for ( i = 1; i <= number; i++ )
         x[i] = x_list[max_benefit_index][i];
-
       x[max_benefit_index] = 2;
-
-      /* verify x array with x[number+1] */
-
-      // if ( x[max_benefit_index] && x[number+1] )
-      //   x[max_benefit_index] = 1; // two halved item == just one item
-      // else if ( x[max_benefit_index] || x[number+1] )
-      //   x[max_benefit_index] = 2; // only one halved item is included
     }
 
 
@@ -281,15 +310,7 @@ double knapsack_one_duplicate(int* weight, int* value, int* x, int max_weight, i
   if ( max_benefit_index != 0 ) {
     for ( i = 1; i <= number; i++ )
       x[i] = x_list[max_benefit_index][i];
-
     x[max_benefit_index] = 3;
-
-    /* verify x array with x[number+1] */
-
-    // if ( x[max_benefit_index] && x[number+1] )
-    //   x[max_benefit_index] = 3; // two duplicated items
-    // else if ( x[max_benefit_index] || x[number+1] )
-    //   x[max_benefit_index] = 1; // only one item
   }
 
 
@@ -308,11 +329,51 @@ double knapsack_one_duplicate(int* weight, int* value, int* x, int max_weight, i
 
 
 
-double knapsack_2(int* weight, int* value, int* x, int max_weight, int number) {
+double knapsack_multiple(int* pweight, int* value, int* x, int max_weight_1, int max_weight_2, int number) {
+
+  int** knapsack;
+  int n, s1, s2, gain, weight; // items, sack1, sack2, gain, cost
+  int i, w1, w2, val1, val2;
+
+
+  /* generate benefit table */
+
+  knapsack = create_table(max_weight_1+1, max_weight_2+1);
+
+
+   n = number;
+   s1 = max_weight_1;
+   s2 = max_weight_2;
+
+   // filing knapsack
+   for (i = 1; i <= n; i++) {
+     gain = value[i];
+     weight = pweight[i];
+     for (w1 = s1; w1 >= 0; w1--) {
+       for (w2 = s2; w2 >= 0; w2--) {
+          val1=val2=0;
+          if(weight<=w1)
+            val1 = knapsack[w1 - weight][w2] + gain;
+          if(weight<=w2)
+            val2 = knapsack[w1][w2 - weight] + gain;
+
+          knapsack[w1][w2] = maximum(knapsack[w1][w2], val1, val2);
+       }
+     }
+   }
+
+
+   // No need to search for max value it always be Knapsack[s1][s2]
+   printf("%d\n", knapsack[s1][s2]);
 
 
 
-  return 1;
+  /* free benefit table */
+
+  destroy_table(knapsack, max_weight_1+1);
+
+
+  return 0;
 }
 
 
@@ -333,31 +394,43 @@ void print_result(int* x, double result, int number){
 }
 
 
-void validate_result(int* value, int* x, double result, int number) {
+void validate_result(int* weight, int* value, int* x, int max_weight, int number, double result) {
   int    i;
-  double sum_of_value = 0;
+  double sum_of_value  = 0;
+  double sum_of_weight = 0;
 
   for ( i = 1; i <= number; i++ ) {
     switch ( x[i] ) {
-      case 1: sum_of_value += value[i];     break;
-      case 2: sum_of_value += value[i] / 2; break;
-      case 3: sum_of_value += value[i] * 2; break;
+      case 1: sum_of_value  += (double)value[i];
+              sum_of_weight += (double)weight[i];
+              break;
+      case 2: sum_of_value  += ((double)value[i]) / 2;
+              sum_of_weight += ((double)weight[i]) / 2;
+              break;
+      case 3: sum_of_value  += ((double)value[i]) * 2;
+              sum_of_weight += ((double)weight[i]) * 2;
+              break;
     }
   }
 
-  if ( result == sum_of_value )
-    printf("ok.\n");
+  if ( result != sum_of_value )
+    printf("  wrong value  : %.1lf != %.1lf\n", result, sum_of_value);
   else
-    printf("wrong answer : %.1lf != %.1lf\n", result, sum_of_value);
+    printf("  value  : %.1lf == %.1lf\n", result, sum_of_value);
+
+  if ( max_weight < sum_of_weight )
+    printf("  wrong weight : %d < %.1lf\n", max_weight, sum_of_weight);
+  else
+    printf("  weight : %d >= %.1lf\n", max_weight, sum_of_weight);
 }
 
 
 int** create_table(int height, int width) {
-  int **arr;
+  int **arr, i;
 
-  arr = (int**) calloc ( height, sizeof(int*) );
-  for( int i = 0; i < height; i++ )
-      arr[i] = (int*) calloc ( width, sizeof(int) );
+  arr = (int**) calloc(height, sizeof(int*));
+  for( i = 0; i < height; i++ )
+      arr[i] = (int*) calloc(width, sizeof(int));
 
   return arr;
 }
@@ -369,4 +442,37 @@ void destroy_table(int** arr, int height) {
   for( i = 0; i < height; i++ )
     free(arr[i]);
   free(arr);
+}
+
+
+int*** create_table_3D(int a, int b, int c) {
+  int ***arr, i, j;
+
+  arr = (int***) calloc(a, sizeof(int**));
+  for ( i = 0; i < a; i++ ) {
+    arr[i] = (int**) calloc(b, sizeof(int*));
+    for ( j = 0; j < b; j++ ) {
+      arr[i][j] = (int*) calloc(c, sizeof(int));
+    }
+  }
+
+  return arr;
+}
+
+
+void destroy_table_3D(int*** arr, int a, int b) {
+  int i, j;
+
+  for ( i = 0; i < a; i++ ) {
+    for ( j = 0; j < a; j++ )
+      free(arr[i][j]);
+    free(arr[i]);
+  }
+  free(arr);
+}
+
+
+int maximum(int a, int b, int c) {
+    int max = a > b ? a : b;
+    return c > max ? c : max;
 }
