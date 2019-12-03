@@ -45,6 +45,64 @@ void insertion_sort(int s[], int n) {
 ```
 
 
+## Dynamic Programming
+
+### 1. LCS :  Longest Common Subsequence
+
+```pseudocode
+m, n = length of x, y
+
+for i = 1 to m	c[i, 0] = 0
+for j = 1 to n	c[0, j] = 0
+
+for i = 1 to m
+  for j = 1 to n
+    if x[i] == y[j]  c[i, j] = c[i-1, j-1] + 1
+    else             c[i, j] = max(c[i, j-1], c[i-1, j])
+        
+result = c[m, n]
+```
+
+### 2. 0-1 Knapsack
+
+~~~ pseudocode
+W = max weight
+n = number of items
+
+for w = 0 to W  B[0, w] = 0
+for i = 0 to n  B[i, 0] = 0
+
+for i = 0 to n
+  for w = 0 to W
+  	if w[i] <= w  B[i, w] = max(b[i] + B[i-1, w-w[i]], B[i-1, w])
+    else          B[i, w] = B[i-1, w]
+    
+result = B[n, W]
+~~~
+
+## Greedy Algorithm
+
+### 1. Coin Change
+
+``` pseudocode
+모든 동전의 액수가 배수 관계에 있을 때, 액수가 가장 큰 동전부터 최대한 많이 포함시키면 최적해
+70원, 160원 등의 동전이 존재한다면 Greedy로 풀이 불가능
+```
+
+### 2. Fractional Knapsack
+
+```pseudocode
+단위 무게 당 가장 가치가 높은 item부터 sack에 포함시키면 최적해
+임의의 비율로 item을 자를 수 없다면 Greedy로 풀이 불가능
+```
+
+### 3. Set Cover
+
+
+
+### 4. 
+
+
 
 ## 과제
 ### HW1 : Binary Search
