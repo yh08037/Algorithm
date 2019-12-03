@@ -74,7 +74,7 @@ for i = 0 to n  B[i, 0] = 0
 
 for i = 0 to n
   for w = 0 to W
-  	if w[i] <= w  B[i, w] = max(b[i] + B[i-1, w-w[i]], B[i-1, w])
+    if w[i] <= w  B[i, w] = max(b[i] + B[i-1, w-w[i]], B[i-1, w])
     else          B[i, w] = B[i-1, w]
     
 result = B[n, W]
