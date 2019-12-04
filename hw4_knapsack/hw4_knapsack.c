@@ -95,7 +95,7 @@ int main(void) {
 
 void read_txt_1(int* weight, int* value, int* max_weight, int* number) {
 
-  char  input_file_name[] = "one_knapsack/input.txt";
+  char  input_file_name[] = "input1.txt";
   FILE* input_file;
   int   temp_w, temp_v;
 
@@ -124,8 +124,7 @@ void read_txt_1(int* weight, int* value, int* max_weight, int* number) {
 
 void read_txt_2(int* weight, int* value, int* max_weight_1, int* max_weight_2, int* number) {
 
-  char  input_file_name[] = "two_knapsack/input.txt";
-  // char  input_file_name[] = "input.txt";
+  char  input_file_name[] = "input2.txt";
   FILE* input_file;
   int   temp_1, temp_2;
 
@@ -187,6 +186,11 @@ double knapsack(int* weight, int* value, int* x, int max_weight, int number) {
   }
 
 
+  /* memorize max benefit */
+
+  max_benefit = benefit[max_weight][number];
+
+
   /* backtracking */
 
   temp_w = max_weight;
@@ -207,11 +211,6 @@ double knapsack(int* weight, int* value, int* x, int max_weight, int number) {
   //   }
   //   printf("\n");
   // }
-
-
-  /* memorize max benefit */
-
-  max_benefit = benefit[max_weight][number];
 
 
   /* free benefit table */
@@ -350,6 +349,7 @@ double knapsack_multiple(int* weight, int* value, int* x, int max_weight_1, int 
   int start_1, start_2;
   int temp_1, temp_2;
   int result;
+  int n;
 
 
 
@@ -374,17 +374,9 @@ double knapsack_multiple(int* weight, int* value, int* x, int max_weight_1, int 
   }
 
 
+  /* memorize max benefit */
 
-  /* TODO : backtracking */
-
-
-  start_1 = max_weight_1;
-  start_2 = max_weight_2-1;
-
-
-  result = backtrack(benefit, start_1, start_2, number, weight, value, x);
-
-  // printf("[%d]\n", result);
+  max_benefit = benefit[number][max_weight_1][max_weight_2];
 
 
   /* print table : for validation */
@@ -392,7 +384,7 @@ double knapsack_multiple(int* weight, int* value, int* x, int max_weight_1, int 
   // for ( i = 0; i <= number; i++ ) {
   //   for ( j = 0; j <= max_weight_1; j++ ) {
   //     for ( k = 0; k <= max_weight_2; k++ ) {
-  //       printf("%3d", benefit[i][j][k]);
+  //       printf("%4d", benefit[i][j][k]);
   //     }
   //     printf("\n");
   //   }
@@ -400,9 +392,21 @@ double knapsack_multiple(int* weight, int* value, int* x, int max_weight_1, int 
   // }
 
 
-  /* memorize max benefit */
+  /* backtracking */
 
-  max_benefit = benefit[number][max_weight_1][max_weight_2];
+  for ( i = 0; i <= max_weight_1; i++ ) {
+    for ( n = i; n >= 0; n-- ) {
+      start_1 = max_weight_1 - i + n;
+      start_2 = max_weight_2 - n;
+
+      if ( benefit[number][start_1][start_2] == max_benefit ) {
+        if ( result = backtrack(benefit, start_1, start_2, number, weight, value, x) ) {
+          break;
+        }
+      }
+    }
+    if ( result ) break;
+  }
 
 
   /* free benefit table */
@@ -418,9 +422,7 @@ double knapsack_multiple(int* weight, int* value, int* x, int max_weight_1, int 
 
 
 int backtrack(int*** benefit, int temp_1, int temp_2, int n, int* weight, int* value, int* x ) {
-
-  // printf("(%d %d)\n", temp_1, temp_2);
-
+  // printf("(%d %d) : %d %d\n", temp_1, temp_2, benefit[n][temp_1][temp_2], value[n]);
 
   if ( n == 0 ) {
     if ( temp_1 == 0 && temp_2 == 0 ) return 1;
@@ -432,25 +434,25 @@ int backtrack(int*** benefit, int temp_1, int temp_2, int n, int* weight, int* v
 
     // put item to sack 1
     if ( temp_1 - weight[n] >= 0 ) {
-      if ( benefit[n][temp_1][temp_2] - benefit[n-1][temp_1-weight[n]][temp_2] != value[n] ){
-        x[n] = 0;
-        return 0;
-      }
       if ( backtrack(benefit, temp_1 - weight[n], temp_2, n-1, weight, value, x) ) {
         x[n] = 4;
         return 1;
+      }
+      if ( benefit[n][temp_1][temp_2] - benefit[n-1][temp_1-weight[n]][temp_2] != value[n] ){
+        x[n] = 0;
+        return 0;
       }
     }
 
     // put item to sack 2
     if ( temp_2 - weight[n] >= 0 ) {
-      if ( benefit[n][temp_1][temp_2] - benefit[n-1][temp_1][temp_2-weight[n]] != value[n] ){
-        x[n] = 0;
-        return 0;
-      }
       if ( backtrack(benefit, temp_1, temp_2 - weight[n], n-1, weight, value, x) ) {
         x[n] = 5;
         return 1;
+      }
+      if ( benefit[n][temp_1][temp_2] - benefit[n-1][temp_1][temp_2-weight[n]] != value[n] ){
+        x[n] = 0;
+        return 0;
       }
     }
   }
