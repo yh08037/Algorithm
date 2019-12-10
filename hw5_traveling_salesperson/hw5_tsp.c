@@ -1,81 +1,107 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-
-// #define NUM_CITY 98
-#define NUM_CITY 10
+#include <math.h>
+#include "graph.h"
 
 
 
-void quick_sort(int* x, int* y, int left, int right);
-int  _partition(int* x, int* y, int left, int right, int pivot_index);
+void insertion_sort(Vertex** arr, int len);
+
+double distance(Vertex* v1, Vertex* v2);
 
 
 
 int main() {
-    
-    FILE* fp = fopen("input.txt", "r");
-    int x[NUM_CITY];
-    int y[NUM_CITY];
+  
+  FILE* fp = fopen("hw5ex3.txt", "r");
 
-    int i;
+  int x, y;
+  int i, j, num_city;
+  int path_length;
 
-
-    for ( i = 0; i < NUM_CITY; i++ ) { 
-        fscanf(fp, "%d", x + i);
-        fscanf(fp, "%d", y + i);
-    }
-    fclose(fp);
+  Graph *graph;
+  Vertex *start, *curr, *prev;
+  Vertex **array;
+  Stack* stack;
 
 
+  /* create vertice array */
 
-    quick_sort(x, y, 0, NUM_CITY);
+  fscanf(fp, "%d", &num_city);
 
-
-    for ( i = 0; i < NUM_CITY; i++ ) {
-        printf("%d %d\n", x[i], y[i]);
-    }
-
-
-
+  if ( !(array = (Vertex**)malloc(num_city * sizeof(Vertex*))) ) {
+    printf("allocation failed.\n");
+    return -1;
+  } 
 
 
-    return 0;
-}
+  /* read input file */
 
-
-
-
-void quick_sort(int* x, int* y, int left, int right) {
-
-  int pivot_index = right; 
-
-  pivot_index = _partition(x, y, left, right-1, pivot_index); 
-
-  if ( left < pivot_index - 1 )
-    quick_sort(x, y, left, pivot_index-1); 
-  if ( pivot_index + 1 < right )
-    quick_sort(x, y, pivot_index+1, right);
-}
-
-
-int _partition(int* x, int* y, int left, int right, int pivot_index) {
-  int temp;
-  int pivot = x[pivot_index];
-
-  while ( left <= right ) { 
-    while ( x[left] < pivot )  left++;
-    while ( x[right] > pivot ) right--;
-
-    if ( left <= right ) { 
-      temp = x[left]; x[left] = x[right]; x[right] = temp; 
-      temp = y[left]; y[left] = y[right]; y[right] = temp; 
-      left++; right--;
-    }
+  for ( i = 0; i < num_city; i++ ) { 
+    fscanf(fp, "%d %d\n", &x, &y);
+    array[i] = CreateVertex(x, y);
   }
+  fclose(fp);
+
+
+  /* sort vertice array by x */
+
+  insertion_sort(array, num_city);
+
+
+  /* create graph */
+
+  graph = CreateGraph();
+
+  for ( i = 0; i < num_city; i++ ) {
+    curr = array[i];
+    AddVertex(graph, curr);
+
+    for ( j = 0; j < i; j++ ) 
+      AddEdge(array[j], CreateEdge(array[j], curr, distance(array[j], curr)));
+    
+    if ( i > 0 && prev->x == curr->x )
+      AddEdge(curr, CreateEdge(curr, prev, distance(curr, prev)));
+    
+    prev = curr;
+  }
+
+  start = array[0];
+
+
+  stack = CreateStack(num_city);
   
-  temp = x[left]; x[left] = x[pivot_index]; x[pivot_index] = temp; 
-  temp = y[left]; y[left] = y[pivot_index]; y[pivot_index] = temp; 
-  
-  return left;
+  DFS(start, 0, 0, 200, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
+  DFS(start, 0, 0, 400, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
+  DFS(start, 0, 0, 600, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
+  DFS(start, 0, 0, 800, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
+  DFS(start, 0, 0, 1000, stack); ResetVisited(graph); ClearStack(stack); printf("\n");
+  DFS(start, 0, 0, 1500, stack); 
+
+  DestroyStack(stack);
+  DestroyGraph(graph);
+  free(array);
+
+  return 0;
+}
+
+
+
+double distance(Vertex* v1, Vertex* v2) {
+  return sqrt(pow(v1->x-v2->x, 2) + pow(v1->y-v2->y, 2));
+}
+
+
+void insertion_sort(Vertex** arr, int len) {
+  int i, j;
+  Vertex* temp;
+
+  for ( i = 1; i < len; i++ ) {
+    temp = arr[i];
+
+    for ( j = i ; j > 0 && temp->x < arr[j-1]->x; j-- )
+      arr[j] = arr[j-1];
+
+    arr[j] = temp;
+  }
 }
