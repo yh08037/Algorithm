@@ -13,14 +13,15 @@ double distance(Vertex* v1, Vertex* v2);
 
 int main() {
   
-  FILE* fp = fopen("hw5ex3.txt", "r");
+  // FILE* fp = fopen("hw5ex3.txt", "r");
+  FILE* fp = fopen("input.txt", "r");
 
   int x, y;
   int i, j, num_city;
   int path_length;
 
   Graph *graph;
-  Vertex *start, *curr, *prev;
+  Vertex *start, *curr;
   Vertex **array;
   Stack* stack;
 
@@ -57,13 +58,11 @@ int main() {
     curr = array[i];
     AddVertex(graph, curr);
 
-    for ( j = 0; j < i; j++ ) 
+    for ( j = 0; j < i; j++ ) {
       AddEdge(array[j], CreateEdge(array[j], curr, distance(array[j], curr)));
-    
-    if ( i > 0 && prev->x == curr->x )
-      AddEdge(curr, CreateEdge(curr, prev, distance(curr, prev)));
-    
-    prev = curr;
+      if ( array[j]->x == curr->x )
+        AddEdge(curr, CreateEdge(curr, array[j], distance(curr, array[j])));
+    }
   }
 
   start = array[0];
@@ -71,12 +70,10 @@ int main() {
 
   stack = CreateStack(num_city);
   
-  DFS(start, 0, 0, 200, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
-  DFS(start, 0, 0, 400, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
-  DFS(start, 0, 0, 600, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
-  DFS(start, 0, 0, 800, stack);  ResetVisited(graph); ClearStack(stack); printf("\n");
-  DFS(start, 0, 0, 1000, stack); ResetVisited(graph); ClearStack(stack); printf("\n");
-  DFS(start, 0, 0, 1500, stack); 
+  DFS(graph, start, 0, 0, 216, stack);  ResetVisited(start); ClearStack(stack); printf("\n");
+
+  // Dijkstra(graph, start);
+
 
   DestroyStack(stack);
   DestroyGraph(graph);

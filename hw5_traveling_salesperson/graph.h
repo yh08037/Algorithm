@@ -14,6 +14,8 @@ typedef struct tagVertex {
   int               x, y;
   int               Visited;
   int               Index;
+  int               InDegree;
+  int               OutDegree;
   struct tagVertex* Next;
   struct tagEdge*   AdjacencyList;
 } Vertex;
@@ -41,12 +43,15 @@ void    DestroyEdge( Edge* E );
 
 void   AddVertex( Graph* G, Vertex* V );
 void   AddEdge( Vertex* V, Edge* E );
-void   ResetVisited( Graph* G );
+void   ResetVisited( Vertex* V );
 
 void   printVertex(void* item);
-void   DFS( Vertex* V, int depth, double length, int max_len, Stack* stack);
-void   ResetVisited( Graph* G );
+void   DFS( Graph* G, Vertex* V, int depth, double length, int max_len, Stack* stack);
+void   ResetVisited( Vertex* V );
 
+void Prim( Graph* G, Vertex* start );
+void Dijkstra( Graph* G, Vertex* start );
+void template( Graph* G, Vertex* start, int mode );
 
 
 #endif // GRAPH_H
