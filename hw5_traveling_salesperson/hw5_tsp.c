@@ -70,7 +70,7 @@ int main() {
 
   stack = CreateStack(num_city);
   
-  DFS(graph, start, 0, 0, 216, stack);  ResetVisited(start); ClearStack(stack); printf("\n");
+  DFS(graph, start, 0, 0, 200, stack);  ResetVisited(start); ClearStack(stack); printf("\n");
 
   // Dijkstra(graph, start);
 

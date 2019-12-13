@@ -14,7 +14,7 @@ double* create_gain_array(int* x, int* y, int* result, int num_city);
 double  get_gain(int* x, int* y, int* result, int index, int num_city);
 double  distance(int* x, int* y, int i1, int i2);
 double  get_path_length(int* x, int* y, int* result, int num_city);
-void    update_gain_array(int* x, int* y, int* result, double* gain_array, int i, int num_city);
+void    update_gain(int* x, int* y, int* result, double* gain_array, int index, int num_city);
 
 int     argmax(double* arr, int len);
 void    fprint_path(FILE* fp, int* x, int* y, int* result, int num_city);
@@ -24,11 +24,11 @@ void    fprint_path(FILE* fp, int* x, int* y, int* result, int num_city);
 
 
 int main() {
-  int *x, *y, *result;
-  int num_city, i, test;
-  int max_len[] = {200, 400, 600, 800, 1000, 1500};
+  int    *x, *y, *result;
+  int    num_city, i, test, total_city;
+  int    max_len[] = {200, 400, 600, 800, 1000, 1500};
   double path_length;
-  FILE *input, *output;
+  FILE   *input, *output;
     
 
   /* file input */
@@ -55,6 +55,7 @@ int main() {
   /* sort vertice array by x */
 
   insertion_sort(x, y, num_city);
+  
 
 
   /* test algorithm */
@@ -67,8 +68,13 @@ int main() {
     fprint_path(output, x, y, result, num_city);
     fprintf(output, "\n");
 
-    /* for validation */
 
+    /* for validation */
+    
+    // total_city = 0;
+    // for ( i = 0; i < num_city; i++ )
+    //   total_city += result[i];
+    // printf("%d : %d\n", max_len[test], total_city);
   }
 
   fclose(output);
@@ -111,33 +117,34 @@ void insertion_sort(int* x, int* y, int len) {
 
 
 double greedy(int* x, int* y, int* result, int num_city, int max_len) {
-  int     i;
+  int     i, max_gain_index;
   double  path_length;
   double* gain_array;
 
 
   /* array allocation and initialization */
 
-  memset(result, 1, sizeof(int)*num_city);
+  for ( i = 0; i < num_city; i++ ) result[i] = 1;
+  
   gain_array = create_gain_array(x, y, result, num_city);
 
-  
-  /* update arrays */
-
   path_length = get_path_length(x, y, result, num_city);
+  
+
+  /* update arrays */
 
   while ( path_length > max_len ) {
 
     /* choose index which has maximum gain */
-    i = argmax(gain_array, num_city);
+    max_gain_index = argmax(gain_array, num_city);
 
     /* and remove it from path */
-    result[i] = 0;
+    result[max_gain_index] = 0;
 
     /* and update gain array for changed path */
-    update_gain_array(x, y, result, gain_array, i, num_city);
+    update_gain(x, y, result, gain_array, max_gain_index, num_city);
     
-    /* get current path lenght */
+    /* get current path length */
     path_length = get_path_length(x, y, result, num_city); 
   }
 
@@ -148,7 +155,7 @@ double greedy(int* x, int* y, int* result, int num_city, int max_len) {
 
 
 double* create_gain_array(int* x, int* y, int* result, int num_city) {
-  int i;
+  int     i;
   double* gain_array;
 
   gain_array = (double*)calloc(num_city, sizeof(double));
@@ -213,18 +220,18 @@ double get_path_length(int* x, int* y, int* result, int num_city) {
 }
 
 
-void update_gain_array(int* x, int* y, int* result, double* gain_array, int i, int num_city) {
+void update_gain(int* x, int* y, int* result, double* gain_array, int index, int num_city) {
   int left, right;
 
-  for ( left = i-1; left >= 0; left-- ) 
-      if ( result[left] ) break;
-    
-    for ( right = i+1; right < num_city; right++ )
-      if ( result[right] ) break;
+  for ( left = index-1; left >= 0; left-- ) 
+    if ( result[left] ) break;
+  
+  for ( right = index+1; right < num_city; right++ )
+    if ( result[right] ) break;
 
-    gain_array[i]     = get_gain(x, y, result, i,     num_city);
-    gain_array[left]  = get_gain(x, y, result, left,  num_city);
-    gain_array[right] = get_gain(x, y, result, right, num_city);  
+  gain_array[index] = get_gain(x, y, result, index, num_city);
+  gain_array[left]  = get_gain(x, y, result, left,  num_city);
+  gain_array[right] = get_gain(x, y, result, right, num_city);  
 }
 
 
@@ -232,7 +239,9 @@ void update_gain_array(int* x, int* y, int* result, double* gain_array, int i, i
 
 
 int argmax(double* arr, int len) {
-  int i, max_idx = 0;
+  int i, max_idx;
+  
+  max_idx = 0;
   
   for ( i = 0; i < len; i++ )
     if ( arr[max_idx] < arr[i] )
